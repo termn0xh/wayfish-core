@@ -37,4 +37,4 @@ add_subdirectory(notificationd)
 add_subdirectory(sddm-helper)
 add_subdirectory(clipboard)
 
-install(FILES cutefish DESTINATION /etc/ COMPONENT Runtime)
+install(FILES cutefish DESTINATION ${CMAKE_INSTALL_SYSCONFDIR} COMPONENT Runtime)

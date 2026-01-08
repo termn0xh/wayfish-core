@@ -33,7 +33,7 @@ target_link_libraries(cutefish-notificationd
 )
 
 install(TARGETS cutefish-notificationd
-    DESTINATION /usr/bin
+    DESTINATION ${CMAKE_INSTALL_BINDIR}
     COMPONENT Runtime
 )
 
@@ -43,5 +43,5 @@ if (ENABLE_TRANSLATIONS AND Qt5_LUPDATE_EXECUTABLE)
     add_custom_target(notificationd_translations DEPENDS ${QM_FILES} SOURCES ${TS_FILES})
     add_dependencies(cutefish-notificationd notificationd_translations)
 
-    install(FILES ${QM_FILES} DESTINATION /usr/share/cutefish-notificationd/translations)
+    install(FILES ${QM_FILES} DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/cutefish-notificationd/translations)
 endif()

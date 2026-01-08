@@ -136,12 +136,14 @@ void ProcessManager::startDesktopProcess()
     // In the way, there will be no problem that desktop and launcher can't get wallpaper.
 
     QList<QPair<QString, QStringList>> list;
-    // Desktop components
-    list << qMakePair(QString("cutefish-notificationd"), QStringList());
+    // Desktop components (minimal order: desktop -> bar -> dock -> launcher)
+    list << qMakePair(QString("cutefish-filemanager"), QStringList("--desktop"));
     list << qMakePair(QString("cutefish-statusbar"), QStringList());
     list << qMakePair(QString("cutefish-dock"), QStringList());
-    list << qMakePair(QString("cutefish-filemanager"), QStringList("--desktop"));
     list << qMakePair(QString("cutefish-launcher"), QStringList());
+
+    // Optional extras
+    list << qMakePair(QString("cutefish-notificationd"), QStringList());
     list << qMakePair(QString("cutefish-powerman"), QStringList());
     list << qMakePair(QString("cutefish-clipboard"), QStringList());
 
@@ -163,16 +165,15 @@ void ProcessManager::startDesktopProcess()
         process->setProgram(pair.first);
         process->setArguments(pair.second);
         process->start();
-        process->waitForStarted();
-
-        qDebug() << "Load DE components: " << pair.first << pair.second;
-
-        // Add to map
-        if (process->exitCode() == 0) {
-            m_autoStartProcess.insert(pair.first, process);
-        } else {
+        if (!process->waitForStarted(3000)) {
+            qWarning() << "Failed to start component:" << pair.first
+                       << process->errorString();
             process->deleteLater();
+            continue;
         }
+
+        qDebug() << "Load DE components:" << pair.first << pair.second;
+        m_autoStartProcess.insert(pair.first, process);
     }
 
     // Auto start
@@ -198,14 +199,14 @@ void ProcessManager::startDaemonProcess()
         process->setProgram(pair.first);
         process->setArguments(pair.second);
         process->start();
-        process->waitForStarted();
-
-        // Add to map
-        if (process->exitCode() == 0) {
-            m_autoStartProcess.insert(pair.first, process);
-        } else {
+        if (!process->waitForStarted(3000)) {
+            qWarning() << "Failed to start daemon:" << pair.first
+                       << process->errorString();
             process->deleteLater();
+            continue;
         }
+
+        m_autoStartProcess.insert(pair.first, process);
     }
 }
 
